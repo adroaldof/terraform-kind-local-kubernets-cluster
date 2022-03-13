@@ -1,0 +1,97 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: first-deployment
+  name: first-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: first-deployment
+  template:
+    metadata:
+      labels:
+        app: first-deployment
+    spec:
+      containers:
+        - image: hashicorp/http-echo:0.2.3
+          name: http-echo
+          args:
+            - -text=first
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: first-service
+  name: first-service
+spec:
+  ports:
+    - port: 5678
+      protocol: TCP
+      targetPort: 5678
+  selector:
+    app: first-deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: second-deployment
+  name: second-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: second-deployment
+  template:
+    metadata:
+      labels:
+        app: second-deployment
+    spec:
+      containers:
+        - image: hashicorp/http-echo:0.2.3
+          name: http-echo
+          args:
+            - -text=second
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: second-service
+  name: second-service
+spec:
+  ports:
+    - port: 5678
+      protocol: TCP
+      targetPort: 5678
+  selector:
+    app: second-deployment
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sample-ingress
+spec:
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/first"
+            backend:
+              service:
+                name: first-service
+                port:
+                  number: 5678
+          - pathType: Prefix
+            path: "/second"
+            backend:
+              service:
+                name: second-service
+                port:
+                  number: 5678
+---
+

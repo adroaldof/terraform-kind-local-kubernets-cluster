@@ -16,6 +16,8 @@ cd src/
 
 ```bash
 terraform init
+terraform fmt
+terraform validate
 terraform plan -out tfplan
 terraform apply tfplan
 ```
@@ -23,7 +25,7 @@ terraform apply tfplan
 1. After you are done working you can destroy the environment to free some resources
 
 ```bash
-terraform destroy
+terraform destroy -auto-approve
 ```
 
 ## Test it out
@@ -31,11 +33,19 @@ terraform destroy
 Sample ingress service to test it out
 
 ```bash
-kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/usage.yaml
+kubectl apply -f src/scripts/sample-deployment-service-ingress.yaml
 kubectl get all # wait to the pods are up
-curl http://localhost/foo
-curl http://localhost/bar
-kubectl delete -f https://kind.sigs.k8s.io/examples/ingress/usage.yaml
+kubectl get ingress
+kubectl describe ingress sample-ingress
+curl http://localhost/first
+curl http://localhost/second
+kubectl delete -f src/scripts/sample-deployment-service-ingress.yaml
+```
+
+As optional could be used the kind example ingres file with the follow commands
+
+```bash
+kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/usage.yaml
 ```
 
 ## Resources
